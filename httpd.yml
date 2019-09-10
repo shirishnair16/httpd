@@ -1,0 +1,56 @@
+---
+ - name: "Install httpd and start the service"
+   hosts: localhost
+   gather_facts: false
+   tasks:
+   - name: install HTTPD
+     yum:
+       name: httpd
+       state: latest
+   - name: start service
+     service:
+      name: httpd
+      state: started
+   - name: firewall
+     firewalld:
+       service: http
+       permanent: yes
+       state: enabled
+#   - name: html index file
+#     file: 
+#       path: /var/www/html/index.html
+#       state: touch
+#       imode: 0777
+   - name: Content   
+     copy:
+       dest: "/var/www/html/index.html"
+       content:  |  
+        <html>
+        <head>
+        FIRST ANSIBLE PAGE USING SIMPLE HTTP
+        </head>
+        </html>
+   - name: Configuration file
+     copy:
+       dest: "/etc/httpd/conf.d/file1.conf"
+       content:  |
+        <virtualhost 10.76.0.5:80>
+        servername server1.example.com
+        documentroot /var/www/html
+        </virtualhost>
+   - name: Restart the services
+     service:
+      name: httpd
+      state: started
+   - name: reload the firewall
+     firewalld:
+       service: http
+       permanent: yes
+       state: enabled
+   - name: Open firefox
+     get_url:
+       url: http://server1.example.com
+       dest: /etc/output.txt
+   - name: Firefox
+     command: firefox http://server1.example.com
+      
